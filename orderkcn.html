@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Đặt hàng - Kho và Nhà máy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            color: #2c3e50;
+        }
+        
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        
+        .close:hover {
+            color: #34495e;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .add-row, .remove-row {
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .add-row {
+            color: #2ecc71;
+        }
+        
+        .remove-row {
+            color: #e74c3c;
+        }
+        
+        .orders-table {
+            margin-top: 30px;
+        }
+        
+        .orders-table tr:hover {
+            background-color: #f8f9fa;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .order-detail {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .order-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .nowrap {
+            white-space: nowrap;
+        }
+        
+        .wrap {
+            word-wrap: break-word;
+        }
+        
+        /* Login page styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #3498db, #8e44ad);
+        }
+        
+        .login-form {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #7f8c8d;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .captcha {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .captcha-code {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            color: #2c3e50;
+            user-select: none;
+        }
+        
+        .refresh-captcha {
+            cursor: pointer;
+            color: #3498db;
+            font-size: 20px;
+        }
+        
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .login-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* User management styles */
+        .user-management {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .user-table {
+            margin-top: 20px;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .user-action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .nav-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-tab.active {
+            border-bottom: 3px solid #3498db;
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* User info */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        
+        .change-password-link {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+        
+        .change-password-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Product management styles */
+        .product-management {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .product-table {
+            margin-top: 20px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .product-action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .import-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px dashed #ddd;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .order-detail, .order-detail * {
+                visibility: visible;
+            }
+            .order-detail {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+                border: none;
+            }
+            .order-actions {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+            
+            .login-form {
+                padding: 20px;
+            }
+            
+            .login-options {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+            
+            .change-password-link {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-form">
+            <div class="login-header">
+                <h1>Hệ thống Đặt hàng</h1>
+                <p>Kho và Nhà máy</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Tên đăng nhập</label>
+                <input type="text" id="username" placeholder="Nhập tên đăng nhập">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" placeholder="Nhập mật khẩu">
+            </div>
+            
+            <div class="form-group">
+                <label for="captcha">Mã xác thực</label>
+                <div class="captcha">
+                    <div id="captchaDisplay" class="captcha-code">A7B2</div>
+                    <i class="fas fa-sync-alt refresh-captcha" onclick="generateCaptcha()"></i>
+                </div>
+                <input type="text" id="captchaInput" placeholder="Nhập mã xác thực">
+            </div>
+            
+            <div class="login-buttons">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="login('view')">Chỉ xem</button>
+                <button class="btn btn-primary" style="flex: 2;" onclick="login('full')">Đăng nhập</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Application -->
+    <div id="appPage" class="container" style="display: none;">
+        <header>
+            <h1>Quy trình Đặt hàng - Kho và Nhà máy</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">KT</div>
+                <div>
+                    <div id="userName">Kho Trung tâm</div>
+                    <div id="userRole" style="font-size: 12px; color: #7f8c8d;">Quyền: Đặt hàng</div>
+                </div>
+                <span id="changePasswordBtn" class="change-password-link" onclick="openChangePasswordModal()">Đổi mật khẩu</span>
+                <button class="btn btn-danger" onclick="logout()" style="margin-left: 15px;">Đăng xuất</button>
+            </div>
+        </header>
+        
+        <div class="nav-tabs" id="navTabs" style="display: none;">
+            <div class="nav-tab active" onclick="switchTab('orderTab')">Đặt hàng</div>
+            <div class="nav-tab" onclick="switchTab('productManagementTab')">Danh mục SP</div>
+            <div class="nav-tab" onclick="switchTab('userManagementTab')">Quản lý tài khoản</div>
+        </div>
+        
+        <!-- Order Tab -->
+        <div id="orderTab" class="tab-content active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Danh sách phiếu đặt hàng</h2>
+                <button id="createOrderBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tạo phiếu đặt hàng
+                </button>
+            </div>
+            
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th class="nowrap" style="width: 20%;">Ngày</th>
+                        <th class="wrap">Chi tiết đặt hàng</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersList">
+                    <!-- Orders will be populated here -->
+                </tbody>
+            </table>
+            
+            <div id="orderDetail" class="order-detail">
+                <div class="order-detail-header">
+                    <h3>Chi tiết phiếu đặt hàng</h3>
+                    <span class="close" onclick="closeOrderDetail()">&times;</span>
+                </div>
+                <div id="orderDetailContent">
+                    <!-- Order detail content will be populated here -->
+                </div>
+                <div class="order-actions">
+                    <button id="editOrderBtn" class="btn btn-primary">Sửa phiếu</button>
+                    <button class="btn btn-secondary" onclick="printOrder()">In phiếu</button>
+                    <button class="btn btn-danger" onclick="closeOrderDetail()">Đóng</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Management Tab -->
+        <div id="productManagementTab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Quản lý Danh mục Sản phẩm</h2>
+                <button id="addProductBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Thêm sản phẩm
+                </button>
+            </div>
+            
+            <div class="import-section">
+                <h3>Import từ Excel</h3>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <input type="file" id="excelFile" accept=".xlsx, .xls" style="flex: 1; padding: 8px;">
+                    <button class="btn btn-success" onclick="importExcel()">
+                        <i class="fas fa-file-import"></i> Import
+                    </button>
+                </div>
+            </div>
+            
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Mã SP</th>
+                        <th style="width: 60%;">Tên SP</th>
+                        <th style="width: 20%;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="productsList">
+                    <!-- Products will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- User Management Tab -->
+        <div id="userManagementTab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Quản lý tài khoản</h2>
+                <button id="addUserBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Thêm tài khoản
+                </button>
+            </div>
+            
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Tên đăng nhập</th>
+                        <th style="width: 25%;">Họ tên</th>
+                        <th style="width: 20%;">Quyền</th>
+                        <th style="width: 20%;">Trạng thái</th>
+                        <th style="width: 15%;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="usersList">
+                    <!-- Users will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal for creating/editing order -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Tạo phiếu đặt hàng</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <table id="orderTable">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">Stt</th>
+                        <th style="width: 15%;">Mã SP</th>
+                        <th style="width: 40%;">Tên SP</th>
+                        <th style="width: 15%;">Số lượng</th>
+                        <th style="width: 10%;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="orderItems">
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <input type="text" class="product-code" onblur="getProductInfo(this)">
+                        </td>
+                        <td>
+                            <select class="product-name" onchange="updateProductOptions(this)">
+                                <option value="">Chọn sản phẩm</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" min="1" class="product-quantity">
+                        </td>
+                        <td>
+                            <i class="fas fa-plus-circle add-row" onclick="addRow(this)"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeModal()">Hủy phiếu</button>
+                <button class="btn btn-success" onclick="submitOrder()">Gửi phiếu</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for adding/editing product -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="productModalTitle">Thêm sản phẩm</h3>
+                <span class="close" onclick="closeProductModal()">&times;</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="productCode">Mã sản phẩm</label>
+                <input type="text" id="productCode" placeholder="Nhập mã sản phẩm">
+            </div>
+            
+            <div class="form-group">
+                <label for="productName">Tên sản phẩm</label>
+                <input type="text" id="productName" placeholder="Nhập tên sản phẩm">
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeProductModal()">Hủy</button>
+                <button class="btn btn-success" onclick="saveProduct()">Lưu</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for adding/editing user -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="userModalTitle">Thêm tài khoản</h3>
+                <span class="close" onclick="closeUserModal()">&times;</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="newUsername">Tên đăng nhập</label>
+                <input type="text" id="newUsername" placeholder="Nhập tên đăng nhập">
+            </div>
+            
+            <div class="form-group">
+                <label for="newPassword">Mật khẩu</label>
+                <input type="password" id="newPassword" placeholder="Nhập mật khẩu">
+            </div>
+            
+            <div class="form-group">
+                <label for="fullName">Họ và tên</label>
+                <input type="text" id="fullName" placeholder="Nhập họ và tên">
+            </div>
+            
+            <div class="form-group">
+                <label for="userRoleSelect">Quyền</label>
+                <select id="userRoleSelect">
+                    <option value="order">Đặt hàng</option>
+                    <option value="export">Xuất hàng</option>
+                    <option value="admin">Quản trị</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="userStatus">Trạng thái</label>
+                <select id="userStatus">
+                    <option value="active">Kích hoạt</option>
+                    <option value="inactive">Vô hiệu hóa</option>
+                </select>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeUserModal()">Hủy</button>
+                <button class="btn btn-success" onclick="saveUser()">Lưu</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for changing password -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Đổi mật khẩu</h3>
+                <span class="close" onclick="closeChangePasswordModal()">&times;</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="currentPassword">Mật khẩu hiện tại</label>
+                <input type="password" id="currentPassword" placeholder="Nhập mật khẩu hiện tại">
+            </div>
+            
+            <div class="form-group">
+                <label for="newPassword">Mật khẩu mới</label>
+                <input type="password" id="newPasswordChange" placeholder="Nhập mật khẩu mới">
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+                <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu mới">
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-danger" onclick="closeChangePasswordModal()">Hủy</button>
+                <button class="btn btn-success" onclick="changePassword()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample product data
+        let products = JSON.parse(localStorage.getItem('products')) || [
+            { code: "SP001", name: "Áo thun nam" },
+            { code: "SP002", name: "Quần jeans nữ" },
+            { code: "SP003", name: "Giày thể thao" },
+            { code: "SP004", name: "Túi xách" }
+        ];
+        
+        // Sample user data
+        const sampleUsers = [
+            { username: "kho_tt", password: "123456", fullName: "Kho Trung tâm", role: "order", status: "active", avatar: "KT" },
+            { username: "nha_may", password: "123456", fullName: "Nhà máy SX", role: "export", status: "active", avatar: "NM" },
+            { username: "admin", password: "admin123", fullName: "Quản trị hệ thống", role: "admin", status: "active", avatar: "QT" }
+        ];
+        
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let users = JSON.parse(localStorage.getItem('users')) || sampleUsers;
+        let currentOrder = null;
+        let currentUser = null;
+        let isEditing = false;
+        let isViewOnly = false;
+        let currentCaptcha = "";
+        let currentProduct = null;
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Save sample data if not exists
+            if (!localStorage.getItem('products')) {
+                localStorage.setItem('products', JSON.stringify(products));
+            }
+            
+            if (!localStorage.getItem('users')) {
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            generateCaptcha();
+        });
+        
+        // Generate CAPTCHA code
+        function generateCaptcha() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let captcha = "";
+            for (let i = 0; i < 4; i++) {
+                captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            currentCaptcha = captcha;
+            document.getElementById('captchaDisplay').textContent = captcha;
+        }
+        
+        // Login function
+        function login(mode) {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const captchaInput = document.getElementById('captchaInput').value;
+            
+            if (mode === 'full') {
+                if (!username || !password) {
+                    alert('Vui lòng nhập tên đăng nhập và mật khẩu');
+                    return;
+                }
+                
+                if (captchaInput !== currentCaptcha) {
+                    alert('Mã xác thực không đúng');
+                    generateCaptcha();
+                    return;
+                }
+                
+                // Find user
+                const user = users.find(u => u.username === username && u.password === password);
+                
+                if (!user) {
+                    alert('Tên đăng nhập hoặc mật khẩu không đúng');
+                    generateCaptcha();
+                    return;
+                }
+                
+                if (user.status !== 'active') {
+                    alert('Tài khoản của bạn đã bị vô hiệu hóa');
+                    generateCaptcha();
+                    return;
+                }
+                
+                currentUser = user;
+                isViewOnly = false;
+            } else {
+                // View only mode
+                currentUser = { 
+                    username: 'guest', 
+                    fullName: 'Khách', 
+                    role: 'view', 
+                    avatar: 'KH' 
+                };
+                isViewOnly = true;
+            }
+            
+            // Show main application
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appPage').style.display = 'block';
+            
+            // Update user info
+            document.getElementById('userAvatar').textContent = currentUser.avatar;
+            document.getElementById('userName').textContent = currentUser.fullName;
+            
+            let roleText = '';
+            switch(currentUser.role) {
+                case 'order': roleText = 'Đặt hàng'; break;
+                case 'export': roleText = 'Xuất hàng'; break;
+                case 'admin': roleText = 'Quản trị'; break;
+                case 'view': roleText = 'Chỉ xem'; break;
+            }
+            
+            document.getElementById('userRole').textContent = `Quyền: ${roleText}`;
+            
+            // Check permissions
+            checkPermissions();
+            
+            // Render data
+            renderOrdersList();
+            renderProductsList();
+            renderUsersList();
+        }
+        
+        // Check user permissions
+        function checkPermissions() {
+            if (isViewOnly || currentUser.role === 'view') {
+                // View only mode
+                document.getElementById('createOrderBtn').style.display = 'none';
+                document.getElementById('editOrderBtn').style.display = 'none';
+                document.getElementById('addUserBtn').style.display = 'none';
+                document.getElementById('addProductBtn').style.display = 'none';
+                document.getElementById('navTabs').style.display = 'none';
+                document.getElementById('changePasswordBtn').style.display = 'none';
+                
+                if (document.getElementById('userManagementTab').classList.contains('active') || 
+                    document.getElementById('productManagementTab').classList.contains('active')) {
+                    switchTab('orderTab');
+                }
+            } else {
+                document.getElementById('createOrderBtn').style.display = 'block';
+                document.getElementById('editOrderBtn').style.display = 'block';
+                document.getElementById('changePasswordBtn').style.display = 'block';
+                
+                // Only show management tabs for admin users
+                if (currentUser.role === 'admin') {
+                    document.getElementById('navTabs').style.display = 'flex';
+                    document.getElementById('addUserBtn').style.display = 'block';
+                    document.getElementById('addProductBtn').style.display = 'block';
+                } else {
+                    document.getElementById('navTabs').style.display = 'none';
+                    document.getElementById('addUserBtn').style.display = 'none';
+                    document.getElementById('addProductBtn').style.display = 'none';
+                }
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('appPage').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('captchaInput').value = '';
+            generateCaptcha();
+        }
+        
+        // Switch between tabs
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate selected tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Activate tab button
+            let tabIndex = 1;
+            if (tabId === 'productManagementTab') tabIndex = 2;
+            if (tabId === 'userManagementTab') tabIndex = 3;
+            
+            document.querySelector(`.nav-tab:nth-child(${tabIndex})`).classList.add('active');
+        }
+        
+        // Modal functions
+        function openModal() {
+            document.getElementById('orderModal').style.display = 'flex';
+            document.getElementById('modalTitle').textContent = isEditing ? 'Sửa phiếu đặt hàng' : 'Tạo phiếu đặt hàng';
+            
+            if (isEditing && currentOrder) {
+                populateOrderForm(currentOrder);
+            } else {
+                clearForm();
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('orderModal').style.display = 'none';
+            isEditing = false;
+            currentOrder = null;
+        }
+        
+        function closeOrderDetail() {
+            document.getElementById('orderDetail').style.display = 'none';
+        }
+        
+        // Product modal functions
+        function openProductModal() {
+            document.getElementById('productModal').style.display = 'flex';
+            document.getElementById('productModalTitle').textContent = currentProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm';
+            
+            if (currentProduct) {
+                document.getElementById('productCode').value = currentProduct.code;
+                document.getElementById('productCode').disabled = true;
+                document.getElementById('productName').value = currentProduct.name;
+            } else {
+                document.getElementById('productCode').value = '';
+                document.getElementById('productCode').disabled = false;
+                document.getElementById('productName').value = '';
+            }
+        }
+        
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+            currentProduct = null;
+        }
+        
+        // User modal functions
+        function openUserModal() {
+            document.getElementById('userModal').style.display = 'flex';
+            document.getElementById('userModalTitle').textContent = 'Thêm tài khoản';
+            
+            // Clear form
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newUsername').disabled = false;
+            document.getElementById('newPassword').value = '';
+            document.getElementById('fullName').value = '';
+            document.getElementById('userRoleSelect').value = 'order';
+            document.getElementById('userStatus').value = 'active';
+        }
+        
+        function closeUserModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+        
+        // Change password modal functions
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+            
+            // Clear form
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPasswordChange').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+        
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+        }
+        
+        // Change password function
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPasswordChange').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('Mật khẩu mới và xác nhận mật khẩu không khớp');
+                return;
+            }
+            
+            if (currentUser.password !== currentPassword) {
+                alert('Mật khẩu hiện tại không đúng');
+                return;
+            }
+            
+            // Update password
+            const userIndex = users.findIndex(u => u.username === currentUser.username);
+            if (userIndex !== -1) {
+                users[userIndex].password = newPassword;
+                localStorage.setItem('users', JSON.stringify(users));
+                currentUser.password = newPassword;
+                alert('Đổi mật khẩu thành công');
+                closeChangePasswordModal();
+            }
+        }
+        
+        // Add row to order form
+        function addRow(button) {
+            const row = button.parentNode.parentNode;
+            const newRow = row.cloneNode(true);
+            
+            // Clear input values
+            const inputs = newRow.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.value = '';
+            });
+            
+            // Clear product name select
+            const select = newRow.querySelector('select');
+            select.innerHTML = '<option value="">Chọn sản phẩm</option>';
+            
+            // Change add button to remove button
+            const addButton = newRow.querySelector('.add-row');
+            addButton.className = 'fas fa-minus-circle remove-row';
+            addButton.onclick = function() { removeRow(this); };
+            
+            // Update row number
+            const rowIndex = Array.from(row.parentNode.children).indexOf(row) + 1;
+            newRow.cells[0].textContent = rowIndex + 1;
+            
+            // Insert the new row
+            row.parentNode.insertBefore(newRow, row.nextSibling);
+            
+            // Update row numbers
+            updateRowNumbers();
+        }
+        
+        // Remove row from order form
+        function removeRow(button) {
+            const row = button.parentNode.parentNode;
+            if (row.parentNode.children.length > 1) {
+                row.parentNode.removeChild(row);
+                updateRowNumbers();
+            }
+        }
+        
+        // Update row numbers in order form
+        function updateRowNumbers() {
+            const rows = document.querySelectorAll('#orderItems tr');
+            rows.forEach((row, index) => {
+                row.cells[0].textContent = index + 1;
+            });
+        }
+        
+        // Get product info based on code
+        function getProductInfo(input) {
+			const code = input.value.trim();
+			if (!code) return;
+			
+			const matchingProducts = products.filter(p => p.code === code);
+			if (matchingProducts.length > 0) {
+				const row = input.parentNode.parentNode;
+				const select = row.querySelector('.product-name');
+				
+				// Clear and populate select with all matching products
+				select.innerHTML = '';
+				matchingProducts.forEach(product => {
+					const option = document.createElement('option');
+					option.value = product.name;
+					option.textContent = product.name;
+					select.appendChild(option);
+				});
+				
+				// Select the first product by default
+				if (select.options.length > 0) {
+					select.options[0].selected = true;
+				}
+			}
+		}
+        
+        // Update product options based on code
+        function updateProductOptions(select) {
+            const productName = select.value;
+            if (!productName) return;
+            
+            const product = products.find(p => p.name === productName);
+            if (product) {
+                const row = select.parentNode.parentNode;
+                const codeInput = row.querySelector('.product-code');
+                codeInput.value = product.code;
+            }
+        }
+        
+        // Submit order
+        function submitOrder() {
+            const rows = document.querySelectorAll('#orderItems tr');
+            const orderItems = [];
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const code = row.querySelector('.product-code').value.trim();
+                const name = row.querySelector('.product-name').value.trim();
+                const quantity = row.querySelector('.product-quantity').value.trim();
+                
+                if (code && name && quantity) {
+                    orderItems.push({
+                        code: code,
+                        name: name,
+                        quantity: parseInt(quantity)
+                    });
+                }
+            }
+            
+            if (orderItems.length === 0) {
+                alert('Vui lòng thêm ít nhất một sản phẩm vào phiếu đặt hàng');
+                return;
+            }
+            
+            if (isEditing && currentOrder) {
+                // Update existing order
+                currentOrder.items = orderItems;
+                currentOrder.updatedAt = new Date().toISOString();
+                
+                const orderIndex = orders.findIndex(o => o.id === currentOrder.id);
+                if (orderIndex !== -1) {
+                    orders[orderIndex] = currentOrder;
+                }
+            } else {
+                // Create new order
+                const newOrder = {
+                    id: Date.now().toString(),
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentUser.fullName,
+                    items: orderItems,
+                    status: 'pending'
+                };
+                
+                orders.push(newOrder);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            // Close modal and refresh orders list
+            closeModal();
+            renderOrdersList();
+            
+            alert(isEditing ? 'Cập nhật phiếu đặt hàng thành công' : 'Tạo phiếu đặt hàng thành công');
+        }
+        
+        // Save product
+        function saveProduct() {
+			const code = document.getElementById('productCode').value.trim();
+			const name = document.getElementById('productName').value.trim();
+			
+			if (!code || !name) {
+				alert('Vui lòng nhập đầy đủ thông tin sản phẩm');
+				return;
+			}
+			
+			if (currentProduct) {
+				// Update existing product
+				const productIndex = products.findIndex(p => p.code === currentProduct.code);
+				if (productIndex !== -1) {
+					products[productIndex].name = name;
+				}
+			} else {
+						
+				// Add new product (cho phép trùng mã)
+				products.push({
+					code: code,
+					name: name
+				});
+		}
+		
+		// Save to localStorage
+		localStorage.setItem('products', JSON.stringify(products));
+		
+		// Close modal and refresh products list
+		closeProductModal();
+		renderProductsList();
+		
+		alert(currentProduct ? 'Cập nhật sản phẩm thành công' : 'Thêm sản phẩm thành công');
+	}
+        
+        // Save user
+        function saveUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const fullName = document.getElementById('fullName').value.trim();
+            const role = document.getElementById('userRoleSelect').value;
+            const status = document.getElementById('userStatus').value;
+            
+            if (!username || !password || !fullName) {
+                alert('Vui lòng nhập đầy đủ thông tin tài khoản');
+                return;
+            }
+            
+            // Add new user
+            users.push({
+                username: username,
+                password: password,
+                fullName: fullName,
+                role: role,
+                status: status,
+                avatar: fullName.split(' ').map(n => n[0]).join('').toUpperCase()
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Close modal and refresh users list
+            closeUserModal();
+            renderUsersList();
+            
+            alert('Thêm tài khoản thành công');
+        }
+        
+        // Render orders list
+        function renderOrdersList() {
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '';
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<tr><td colspan="2" style="text-align: center;">Chưa có phiếu đặt hàng nào</td></tr>';
+                return;
+            }
+            
+            // Sort orders by date (newest first)
+            const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            sortedOrders.forEach(order => {
+                const row = document.createElement('tr');
+                row.onclick = () => showOrderDetail(order);
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = new Date(order.createdAt).toLocaleDateString('vi-VN');
+                
+                const detailCell = document.createElement('td');
+                let detailText = `Mã phiếu: ${order.id} | Người tạo: ${order.createdBy} | `;
+                
+                if (order.items && order.items.length > 0) {
+                    detailText += `Số sản phẩm: ${order.items.length}`;
+                } else {
+                    detailText += 'Không có sản phẩm';
+                }
+                
+                detailCell.textContent = detailText;
+                
+                row.appendChild(dateCell);
+                row.appendChild(detailCell);
+                
+                ordersList.appendChild(row);
+            });
+        }
+        
+        // Render products list
+        function renderProductsList() {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsList.innerHTML = '<tr><td colspan="3" style="text-align: center;">Chưa có sản phẩm nào</td></tr>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                
+                const codeCell = document.createElement('td');
+                codeCell.textContent = product.code;
+                
+                const nameCell = document.createElement('td');
+                nameCell.textContent = product.name;
+                
+                const actionCell = document.createElement('td');
+                actionCell.className = 'product-actions';
+                
+                if (currentUser.role === 'admin') {
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn btn-warning product-action-btn';
+                    editButton.innerHTML = '<i class="fas fa-edit"></i>';
+                    editButton.onclick = () => {
+                        currentProduct = product;
+                        openProductModal();
+                    };
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn btn-danger product-action-btn';
+                    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteButton.onclick = () => deleteProduct(product.code);
+                    
+                    actionCell.appendChild(editButton);
+                    actionCell.appendChild(deleteButton);
+                } else {
+                    actionCell.textContent = 'Chỉ xem';
+                }
+                
+                row.appendChild(codeCell);
+                row.appendChild(nameCell);
+                row.appendChild(actionCell);
+                
+                productsList.appendChild(row);
+            });
+        }
+        
+        // Render users list
+        function renderUsersList() {
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                
+                const usernameCell = document.createElement('td');
+                usernameCell.textContent = user.username;
+                
+                const fullNameCell = document.createElement('td');
+                fullNameCell.textContent = user.fullName;
+                
+                const roleCell = document.createElement('td');
+                switch(user.role) {
+                    case 'order': roleCell.textContent = 'Đặt hàng'; break;
+                    case 'export': roleCell.textContent = 'Xuất hàng'; break;
+                    case 'admin': roleCell.textContent = 'Quản trị'; break;
+                    default: roleCell.textContent = user.role;
+                }
+                
+                const statusCell = document.createElement('td');
+                statusCell.textContent = user.status === 'active' ? 'Kích hoạt' : 'Vô hiệu hóa';
+                
+                const actionCell = document.createElement('td');
+                actionCell.className = 'user-actions';
+                
+                if (currentUser.role === 'admin') {
+                    const editButton = document.createElement('button');
+                    editButton.className = 'btn btn-warning user-action-btn';
+                    editButton.innerHTML = '<i class="fas fa-edit"></i>';
+                    editButton.onclick = () => editUser(user.username);
+                    
+                    const statusButton = document.createElement('button');
+                    statusButton.className = user.status === 'active' ? 'btn btn-danger user-action-btn' : 'btn btn-success user-action-btn';
+                    statusButton.innerHTML = user.status === 'active' ? '<i class="fas fa-ban"></i>' : '<i class="fas fa-check"></i>';
+                    statusButton.onclick = () => toggleUserStatus(user.username);
+                    
+                    actionCell.appendChild(editButton);
+                    actionCell.appendChild(statusButton);
+                } else {
+                    actionCell.textContent = 'Chỉ xem';
+                }
+                
+                row.appendChild(usernameCell);
+                row.appendChild(fullNameCell);
+                row.appendChild(roleCell);
+                row.appendChild(statusCell);
+                row.appendChild(actionCell);
+                
+                usersList.appendChild(row);
+            });
+        }
+        
+        // Delete product
+        function deleteProduct(code) {
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                products = products.filter(p => p.code !== code);
+                localStorage.setItem('products', JSON.stringify(products));
+                renderProductsList();
+                alert('Xóa sản phẩm thành công');
+            }
+        }
+        
+        // Edit user
+        function editUser(username) {
+            // Implementation for editing user
+            alert('Chức năng chỉnh sửa tài khoản sẽ được triển khai ở phiên bản sau');
+        }
+        
+        // Toggle user status
+        function toggleUserStatus(username) {
+            const user = users.find(u => u.username === username);
+            if (user) {
+                user.status = user.status === 'active' ? 'inactive' : 'active';
+                localStorage.setItem('users', JSON.stringify(users));
+                renderUsersList();
+                alert(`Cập nhật trạng thái tài khoản ${username} thành công`);
+            }
+        }
+        
+        // Show order detail
+        function showOrderDetail(order) {
+            currentOrder = order;
+            const orderDetail = document.getElementById('orderDetail');
+            const orderDetailContent = document.getElementById('orderDetailContent');
+            
+            orderDetailContent.innerHTML = `
+                <p><strong>Mã phiếu:</strong> ${order.id}</p>
+                <p><strong>Ngày tạo:</strong> ${new Date(order.createdAt).toLocaleDateString('vi-VN')}</p>
+                <p><strong>Người tạo:</strong> ${order.createdBy}</p>
+                <p><strong>Trạng thái:</strong> ${order.status === 'pending' ? 'Chờ xử lý' : 'Đã xử lý'}</p>
+                
+                <h4 style="margin-top: 20px;">Chi tiết sản phẩm</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã SP</th>
+                            <th>Tên SP</th>
+                            <th>Số lượng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${order.items.map(item => `
+                            <tr>
+                                <td>${item.code}</td>
+                                <td>${item.name}</td>
+                                <td>${item.quantity}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            orderDetail.style.display = 'block';
+            
+            // Show/hide edit button based on permissions
+            if (isViewOnly || currentUser.role !== 'order') {
+                document.getElementById('editOrderBtn').style.display = 'none';
+            } else {
+                document.getElementById('editOrderBtn').style.display = 'block';
+                document.getElementById('editOrderBtn').onclick = () => {
+                    isEditing = true;
+                    openModal();
+                };
+            }
+        }
+        
+        // Print order
+        function printOrder() {
+            window.print();
+        }
+        
+        // Import Excel function
+        function importExcel() {
+            const fileInput = document.getElementById('excelFile');
+            if (!fileInput.files.length) {
+                alert('Vui lòng chọn file Excel để import');
+                return;
+            }
+            
+            // Simulate import process
+            alert('Chức năng import từ Excel sẽ được tích hợp ở phiên bản sau. Hiện tại bạn có thể thêm sản phẩm thủ công.');
+            
+            // Clear file input
+            fileInput.value = '';
+        }
+        
+        // Initialize event listeners
+        document.getElementById('createOrderBtn').addEventListener('click', function() {
+            isEditing = false;
+            currentOrder = null;
+            openModal();
+        });
+        
+        document.getElementById('addProductBtn').addEventListener('click', function() {
+            currentProduct = null;
+            openProductModal();
+        });
+        
+        document.getElementById('addUserBtn').addEventListener('click', openUserModal);
+        
+        // Populate product options in order form
+        function populateProductOptions() {
+			const productSelects = document.querySelectorAll('.product-name');
+			productSelects.forEach(select => {
+				select.innerHTML = '<option value="">Chọn sản phẩm</option>';
+				products.forEach(product => {
+					const option = document.createElement('option');
+					option.value = product.name;
+					option.textContent = product.name;
+					select.appendChild(option);
+				});
+			});
+		}
+        
+        // Populate order form with existing data
+        function populateOrderForm(order) {
+            const orderItemsContainer = document.getElementById('orderItems');
+            orderItemsContainer.innerHTML = '';
+            
+            order.items.forEach((item, index) => {
+                const row = document.createElement('tr');
+                
+                const indexCell = document.createElement('td');
+                indexCell.textContent = index + 1;
+                
+                const codeCell = document.createElement('td');
+                const codeInput = document.createElement('input');
+                codeInput.type = 'text';
+                codeInput.className = 'product-code';
+                codeInput.value = item.code;
+                codeInput.onblur = function() { getProductInfo(this); };
+                codeCell.appendChild(codeInput);
+                
+                const nameCell = document.createElement('td');
+                const nameSelect = document.createElement('select');
+                nameSelect.className = 'product-name';
+                nameSelect.onchange = function() { updateProductOptions(this); };
+                
+                // Populate product options
+                // Trong hàm populateOrderForm(), tìm phần populate product options và sửa thành:
+				nameSelect.innerHTML = '<option value="">Chọn sản phẩm</option>';
+				products.forEach(product => {
+					const option = document.createElement('option');
+					option.value = product.name;
+					option.textContent = product.name;
+					if (product.name === item.name && product.code === item.code) {
+						option.selected = true;
+					}
+					nameSelect.appendChild(option);
+				});
+                
+                nameCell.appendChild(nameSelect);
+                
+                const quantityCell = document.createElement('td');
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'number';
+                quantityInput.min = '1';
+                quantityInput.className = 'product-quantity';
+                quantityInput.value = item.quantity;
+                quantityCell.appendChild(quantityInput);
+                
+                const actionCell = document.createElement('td');
+                if (index === order.items.length - 1) {
+                    const addButton = document.createElement('i');
+                    addButton.className = 'fas fa-plus-circle add-row';
+                    addButton.onclick = function() { addRow(this); };
+                    actionCell.appendChild(addButton);
+                } else {
+                    const removeButton = document.createElement('i');
+                    removeButton.className = 'fas fa-minus-circle remove-row';
+                    removeButton.onclick = function() { removeRow(this); };
+                    actionCell.appendChild(removeButton);
+                }
+                
+                row.appendChild(indexCell);
+                row.appendChild(codeCell);
+                row.appendChild(nameCell);
+                row.appendChild(quantityCell);
+                row.appendChild(actionCell);
+                
+                orderItemsContainer.appendChild(row);
+            });
+        }
+        
+        // Clear order form
+        function clearForm() {
+			const orderItemsContainer = document.getElementById('orderItems');
+			orderItemsContainer.innerHTML = `
+				<tr>
+					<td>1</td>
+					<td>
+						<input type="text" class="product-code" onblur="getProductInfo(this)">
+					</td>
+					<td>
+						<select class="product-name" onchange="updateProductOptions(this)">
+							<option value="">Chọn sản phẩm</option>
+						</select>
+					</td>
+					<td>
+						<input type="number" min="1" class="product-quantity">
+					</td>
+					<td>
+						<i class="fas fa-plus-circle add-row" onclick="addRow(this)"></i>
+					</td>
+				</tr>
+			`;
+			
+			populateProductOptions(); // Đảm bảo gọi hàm này
+		}
+        
+        // Initialize product options when modal is opened
+        document.getElementById('orderModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                populateProductOptions();
+            }
+        });
+        
+        // Initialize the page
+        window.onload = function() {
+            generateCaptcha();
+        };
+    </script>
+</body>
+</html>
